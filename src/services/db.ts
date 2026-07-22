@@ -15,11 +15,19 @@ const ACTIVITIES_KEY = "usutc_activities";
 
 // Local Storage helper to initialize database
 function initializeLocalStorageDB(): void {
-  if (!localStorage.getItem(USERS_KEY) || !localStorage.getItem(ACTIVITIES_KEY)) {
-    const { users, activities } = getInitialMockData();
+  const { users } = getInitialMockData();
+  if (!localStorage.getItem("usutc_cleaned_v3")) {
     localStorage.setItem(USERS_KEY, JSON.stringify(users));
-    localStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
-    console.log("Local Storage database initialized with mock data.");
+    localStorage.setItem(ACTIVITIES_KEY, JSON.stringify([]));
+    localStorage.setItem("usutc_cleaned_v3", "true");
+    console.log("Local Storage reset: empty activities for each month.");
+    return;
+  }
+  if (!localStorage.getItem(USERS_KEY)) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+  }
+  if (!localStorage.getItem(ACTIVITIES_KEY)) {
+    localStorage.setItem(ACTIVITIES_KEY, JSON.stringify([]));
   }
 }
 

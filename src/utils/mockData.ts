@@ -1,5 +1,4 @@
 import type { User, Activity, GPSPoint } from "../types";
-import { parseGPX } from "./geo";
 
 // Function to generate simulated GPS points in a loop inside USU
 export function generateUSUTack(
@@ -149,59 +148,6 @@ export function getInitialMockData(): { users: User[]; activities: Activity[] } 
 
   const activities: Activity[] = [];
 
-  // Helper to compile activity object
-  const createSimulatedActivity = (
-    userId: string,
-    trackName: string,
-    points: GPSPoint[],
-    dateStr: string
-  ): Activity => {
-    // Parse using our own GPX parser (which recalculates distance, pace and checks boundaries)
-    const gpxString = pointsToGPXString(trackName, points);
-    const parsed = parseGPX(gpxString);
-    
-    return {
-      id: Math.random().toString(36).substring(2, 9),
-      userId,
-      date: dateStr,
-      rawPoints: points,
-      calculatedDistanceKm: parsed.distanceKm,
-      calculatedDurationMin: parsed.durationMin,
-      avgPaceMinPerKm: parsed.avgPaceMinPerKm,
-      pointsInBoundaryPct: parsed.pointsInBoundaryPct,
-      isValidLocation: parsed.isValidLocation,
-      usuDistanceKm: parsed.usuDistanceKm
-    };
-  };
-
-  // Seed runs in July 2026
-  activities.push(
-    createSimulatedActivity("u1", "Morning Jog USU", generateUSUTack(3.5613, 98.6568, 0.0028, 3, 25, new Date("2026-07-02T06:30:00Z")), "2026-07-02"),
-    createSimulatedActivity("u2", "USU Loop", generateUSUTack(3.5611, 98.6565, 0.0025, 4, 30, new Date("2026-07-03T16:45:00Z")), "2026-07-03"),
-    createSimulatedActivity("u3", "Speed Run", generateUSUTack(3.5614, 98.6570, 0.0022, 5, 20, new Date("2026-07-05T06:00:00Z")), "2026-07-05"),
-    createSimulatedActivity("u4", "Sore Santai", generateUSUTack(3.5610, 98.6560, 0.0024, 2, 28, new Date("2026-07-08T17:00:00Z")), "2026-07-08"),
-    // A run that is invalid (downtown Medan) - should not count towards leaderboard
-    createSimulatedActivity("u1", "Medan Mall Run", generateOutsideTrack(3.5885, 98.6755, 0.0012, 35, new Date("2026-07-10T06:15:00Z")), "2026-07-10"),
-    // A run that crosses borders (partially valid) - 62% inside, so it's valid, but only a portion counts
-    createSimulatedActivity("u5", "Cross Padang Bulan", generateCrossBorderTrack(new Date("2026-07-12T07:00:00Z")), "2026-07-12")
-  );
-
-  // Seed runs in August 2026
-  activities.push(
-    createSimulatedActivity("u1", "USU Interval", generateUSUTack(3.5613, 98.6568, 0.0025, 4, 30, new Date("2026-08-01T06:30:00Z")), "2026-08-01"),
-    createSimulatedActivity("u2", "Agustus Ceria", generateUSUTack(3.5611, 98.6565, 0.0030, 3, 30, new Date("2026-08-02T16:00:00Z")), "2026-08-02"),
-    createSimulatedActivity("u3", "Babat Lintasan", generateUSUTack(3.5614, 98.6570, 0.0026, 6, 25, new Date("2026-08-04T05:45:00Z")), "2026-08-04"),
-    createSimulatedActivity("u4", "Long Run Kampus", generateUSUTack(3.5610, 98.6560, 0.0024, 5, 25, new Date("2026-08-05T06:15:00Z")), "2026-08-05"),
-    createSimulatedActivity("u5", "Run around FIB", generateUSUTack(3.5615, 98.6558, 0.0018, 3, 20, new Date("2026-08-07T16:30:00Z")), "2026-08-07")
-  );
-
-  // Seed runs in September 2026
-  activities.push(
-    createSimulatedActivity("u2", "USU Lari Pagi", generateUSUTack(3.5611, 98.6565, 0.0026, 5, 28, new Date("2026-09-01T06:00:00Z")), "2026-09-01"),
-    createSimulatedActivity("u3", "September Pace", generateUSUTack(3.5614, 98.6570, 0.0024, 7, 24, new Date("2026-09-02T05:30:00Z")), "2026-09-02"),
-    createSimulatedActivity("u1", "Weekly Run", generateUSUTack(3.5613, 98.6568, 0.0028, 4, 30, new Date("2026-09-05T06:30:00Z")), "2026-09-05"),
-    createSimulatedActivity("u4", "USU Santai", generateUSUTack(3.5610, 98.6560, 0.0020, 3, 20, new Date("2026-09-06T17:15:00Z")), "2026-09-06")
-  );
-
+  // Start with empty activities so every month begins clean
   return { users, activities };
 }
