@@ -23,7 +23,7 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
       setCanvasError(false);
       // Wait for modal to render, then generate the card
       const timer = setTimeout(() => {
-        generateShareCard();
+        generateShareCard(false);
       }, 100);
       return () => clearTimeout(timer);
     }
@@ -44,7 +44,7 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
     }
   };
 
-  const generateShareCard = () => {
+  const generateShareCard = (forceVectorAvatar = false) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -55,7 +55,6 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
     canvas.width = 1080;
     canvas.height = 1920;
 
-    // Narrow type to satisfy TypeScript
     const activeEntry = entry;
     const activeCtx = ctx;
 
@@ -121,9 +120,19 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
       drawCtx.lineWidth = 6;
       drawCtx.stroke();
 
-      // Attempt to load and draw Dicebear avatar
+      // If forceVectorAvatar or no avatarUrl, draw vector avatar directly
+      if (forceVectorAvatar || !runner.avatarUrl) {
+        drawAvatarFallback(drawCtx, runner);
+        return;
+      }
+
+      // Attempt to load and draw photo avatar
       const img = new Image();
-      img.crossOrigin = "anonymous";
+      // Handle cross-origin for external http image URLs
+      if (!runner.avatarUrl.startsWith("data:")) {
+        img.crossOrigin = "anonymous";
+      }
+
       img.onload = () => {
         try {
           drawCtx.save();
@@ -133,22 +142,18 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
           drawCtx.drawImage(img, avatarX - avatarSize / 2, avatarY - avatarSize / 2, avatarSize, avatarSize);
           drawCtx.restore();
           
-          // Draw Name after avatar loads
           drawNameAndStats(drawCtx, runner);
         } catch {
-          // Fallback to initials if draw fails due to CORS
+          // Fallback to vector initials avatar if canvas taints
           drawAvatarFallback(drawCtx, runner);
         }
       };
+
       img.onerror = () => {
         drawAvatarFallback(drawCtx, runner);
       };
-      // Trigger load
-      if (runner.avatarUrl) {
-        img.src = runner.avatarUrl;
-      } else {
-        drawAvatarFallback(drawCtx, runner);
-      }
+
+      img.src = runner.avatarUrl;
     };
 
     const drawAvatarFallback = (drawCtx: CanvasRenderingContext2D, runner: LeaderboardEntry) => {
@@ -257,21 +262,37 @@ export default function ShareModal({ isOpen, onClose, entry, monthLabel }: Share
     }
   };
 
+  const triggerFileSave = (dataUrl: string) => {
+    const link = document.createElement("a");
+    link.download = `USUTC_Story_${entry.userName.replace(/\s+/g, "_")}_${monthLabel.replace(/\s+/g, "_")}.png`;
+    link.href = dataUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const handleDownload = () => {
     const canvas = canvasRef.current;
-    if (!canvas || !imageGenerated || !entry) return;
+    if (!canvas || !entry) return;
 
     try {
+      // Attempt 1: Export canvas directly
       const dataUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = `USUTC_Story_${entry.userName.replace(/\s+/g, "_")}_${monthLabel.replace(/\s+/g, "_")}.png`;
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      triggerFileSave(dataUrl);
     } catch (err) {
-      console.error("Download failed", err);
-      alert("Gagal mengunduh gambar karena masalah keamanan browser (CORS). Anda masih bisa menyalin teks caption!");
+      console.warn("External image tainted canvas. Falling back to vector card generation...", err);
+      // Attempt 2: Re-render with clean vector avatar (never taints) and export
+      generateShareCard(true);
+      setTimeout(() => {
+        if (canvasRef.current) {
+          try {
+            const cleanDataUrl = canvasRef.current.toDataURL("image/png");
+            triggerFileSave(cleanDataUrl);
+          } catch (e) {
+            console.error("Download fallback failed", e);
+          }
+        }
+      }, 50);
     }
   };
 

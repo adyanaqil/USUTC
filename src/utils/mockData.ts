@@ -139,11 +139,11 @@ export function pointsToGPXString(name: string, points: GPSPoint[]): string {
 
 export function getInitialMockData(): { users: User[]; activities: Activity[] } {
   const users: User[] = [
-    { id: "u1", name: "Rian Utama", avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Rian" },
-    { id: "u2", name: "Siti Aminah", avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Siti" },
-    { id: "u3", name: "Budi Santoso", avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Budi" },
-    { id: "u4", name: "Ahmad Fauzi", avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Ahmad" },
-    { id: "u5", name: "Grace Siahaan", avatarUrl: "https://api.dicebear.com/7.x/adventurer/svg?seed=Grace" }
+    { id: "u1", name: "Rian Utama", avatarUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80" },
+    { id: "u2", name: "Siti Aminah", avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80" },
+    { id: "u3", name: "Budi Santoso", avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80" },
+    { id: "u4", name: "Ahmad Fauzi", avatarUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80" },
+    { id: "u5", name: "Grace Siahaan", avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" }
   ];
 
   const activities: Activity[] = [];

@@ -92,11 +92,11 @@ export default function LeaderboardTable({
                     style={{ display: "flex", alignItems: "center", gap: "12px" }}
                   >
                     <img 
-                      src={entry.avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${entry.userName}`} 
+                      src={entry.avatarUrl || `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#0f172a"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#10b981" font-size="38" font-family="sans-serif" font-weight="bold">${entry.userName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}</text></svg>`)}`} 
                       alt={entry.userName} 
                       className="runner-avatar"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${entry.userName}`;
+                        (e.target as HTMLImageElement).src = `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#0f172a"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#10b981" font-size="38" font-family="sans-serif" font-weight="bold">${entry.userName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()}</text></svg>`)}`;
                       }}
                     />
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>

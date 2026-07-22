@@ -25,8 +25,22 @@ export default function LapoRunModal({
 }: LapoRunModalProps) {
   const [selectedUserId, setSelectedUserId] = useState<string>("");
   const [newUserName, setNewUserName] = useState<string>("");
+  const [newUserAvatarUrl, setNewUserAvatarUrl] = useState<string>("");
   const [showAddUser, setShowAddUser] = useState<boolean>(false);
   const [dragActive, setDragActive] = useState<boolean>(false);
+
+  const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setNewUserAvatarUrl(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
   const [parsedData, setParsedData] = useState<{
     points: GPSPoint[];
     distanceKm: number;
@@ -109,10 +123,11 @@ export default function LapoRunModal({
     if (!newUserName.trim()) return;
 
     try {
-      const newUser = await createUser(newUserName.trim());
+      const newUser = await createUser(newUserName.trim(), newUserAvatarUrl || undefined);
       onRefreshUsers();
       setSelectedUserId(newUser.id);
       setNewUserName("");
+      setNewUserAvatarUrl("");
       setShowAddUser(false);
     } catch {
       setError("Gagal membuat pelari baru.");
@@ -225,25 +240,50 @@ export default function LapoRunModal({
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleAddUserSubmit} className="flex-row">
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="Nama pelari baru..."
-                  value={newUserName}
-                  onChange={(e) => setNewUserName(e.target.value)}
-                  autoFocus
-                />
-                <button type="submit" className="btn-primary">
-                  Tambah
-                </button>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setShowAddUser(false)}
-                >
-                  Batal
-                </button>
+              <form onSubmit={handleAddUserSubmit} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <div className="flex-row">
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Nama pelari baru..."
+                    value={newUserName}
+                    onChange={(e) => setNewUserName(e.target.value)}
+                    autoFocus
+                  />
+                  <button type="submit" className="btn-primary">
+                    Tambah
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => {
+                      setShowAddUser(false);
+                      setNewUserAvatarUrl("");
+                    }}
+                  >
+                    Batal
+                  </button>
+                </div>
+                
+                {/* Profile Photo Uploader */}
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", background: "var(--bg-darker)", padding: "8px 12px", borderRadius: "8px", border: "1px solid var(--border-glass)" }}>
+                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", overflow: "hidden", backgroundColor: "#0f172a", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--primary)" }}>
+                    {newUserAvatarUrl ? (
+                      <img src={newUserAvatarUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <span style={{ fontSize: "11px", color: "var(--primary)", fontWeight: "bold" }}>Foto</span>
+                    )}
+                  </div>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "500" }}>Unggah Foto Diri / Profil (Opsional)</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleAvatarFileChange} 
+                      style={{ fontSize: "11px", color: "var(--text-muted)", cursor: "pointer" }}
+                    />
+                  </div>
+                </div>
               </form>
             )}
           </div>

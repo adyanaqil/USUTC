@@ -78,11 +78,15 @@ export async function getUsers(): Promise<User[]> {
 }
 
 // Add a new user (for profile creation/lapoRUN entry)
-export async function createUser(name: string): Promise<User> {
+export async function createUser(name: string, avatarUrl?: string): Promise<User> {
+  const initials = name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+  const defaultSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" rx="50" fill="#0f172a"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#10b981" font-size="38" font-family="sans-serif" font-weight="bold">${initials}</text></svg>`;
+  const fallbackUrl = `data:image/svg+xml;utf8,${encodeURIComponent(defaultSvg)}`;
+
   const newUser: User = {
     id: "u_" + Math.random().toString(36).substring(2, 9),
     name,
-    avatarUrl: `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`
+    avatarUrl: avatarUrl || fallbackUrl
   };
 
   if (isFirebaseConfigured && db) {
